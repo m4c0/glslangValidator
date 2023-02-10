@@ -1,0 +1,26 @@
+name: build
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+          - macos
+          - ubuntu
+          - windows
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - run: cmake -S glslang -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install
+      - run: cmake --build build
+      - run: cmake --build build --target install
+      - uses: actions/upload-artifact@v3
+        with:
+          name: glslang-${{ matrix.os }}.zip
+          path: install
